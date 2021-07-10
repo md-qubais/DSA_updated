@@ -1,4 +1,4 @@
-class Solution {
+class Solution{
 public:
     bool isValidSerialization(string preorder){
         if(preorder.length()==1){
@@ -7,30 +7,44 @@ public:
             }
             return false;
         }
-        stack<int> num;
-        stack<char> nodes;
-        for(int i=0;i<preorder.size();i++){
-            if(preorder[0]==','){
+        stack<pair<string,int>> s;
+        preorder+=",";
+        string temp="";
+        bool b=false;
+        for(int i=0;i<preorder.length();i++){
+            if(preorder[i]!=',' and preorder[i]!='#') temp+=preorder[i];
+            if(preorder[i]==','){
+                if(b and s.empty() and temp.length()>0){
+                    return false;
+                }
+                if(temp.length()>0){
+                    b=true;
+                    s.push({temp,0});
+                }
+                temp="";
                 continue;
             }
             if(preorder[i]=='#'){
-                nodes.push('#');
-                if(nodes.size()>=2 and num.size()>=1){
-                    num.pop();
-                    nodes.pop();
-                    nodes.pop();
+                if(s.empty()){
+                    return false;
                 }
-                continue;
-            }else{
-                int j=i;
-                while(preorder[j]!=','){
-                    j++;
+                pair<string,int> p=s.top();
+                s.pop();
+                p.second++;
+                s.push(p);
+                while(!s.empty() and s.top().second==2){
+                    s.pop();
+                    if(!s.empty()){
+                        pair<string,int> temp=s.top();
+                        s.pop();
+                        temp.second++;
+                        s.push(temp);
+                    }
                 }
-                num.push(1);
-                i=j;
             }
         }
-        if(num.empty() and nodes.empty()){
+
+        if(s.empty()){
             return true;
         }
         return false;
